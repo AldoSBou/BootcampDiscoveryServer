@@ -1,0 +1,95 @@
+server:
+  port: 8761
+
+spring:
+  config:
+    activate:
+      onProfile: default
+
+eureka:
+  client:
+    fetchRegistry: false
+    registerWithEureka: false
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+    leaseExpirationDurationInSeconds: 60
+    leaseRenewalIntervalInSeconds: 30
+
+  datacenter: Bootcamp
+  environment: Development
+
+---
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discovery-server
+  config:
+    activate:
+      onProfile: profile01
+eureka:
+  client:
+    fetchRegistry: false
+    registerWithEureka: false
+    serviceUrl:
+      defaultZone: http://discovery-server-2.ntt.com:8762/eureka, http://discovery-server-3.ntt.com:8763/eureka
+  instance:
+    hostname: http://discovery-server-1.ntt.com
+    preferIpAddress: true
+    leaseExpirationDurationInSeconds: 60
+    leaseRenewalIntervalInSeconds: 30
+
+  datacenter: Bootcamp
+  environment: Development
+
+---
+server:
+  port: 8762
+
+spring:
+  application:
+    name: discovery-server
+  config:
+    activate:
+      onProfile: profile02
+eureka:
+  client:
+    fetchRegistry: false
+    registerWithEureka: false
+    serviceUrl:
+      defaultZone: http://discovery-server-1.ntt.com:8761/eureka, http://discovery-server-3.ntt.com:8763/eureka
+  instance:
+    hostname: http://discovery-server-2.ntt.com
+    preferIpAddress: true
+    leaseExpirationDurationInSeconds: 60
+    leaseRenewalIntervalInSeconds: 30
+
+  datacenter: Bootcamp
+  environment: Development
+
+---
+server:
+  port: 8763
+
+spring:
+  application:
+    name: discovery-server
+  config:
+    activate:
+      onProfile: profile03
+eureka:
+  client:
+      fetchRegistry: false
+      registerWithEureka: false
+      serviceUrl:
+        defaultZone: http://discovery-server-1.ntt.com:8761/eureka, http://discovery-server-2.ntt.com:8762/eureka
+  instance:
+    hostname: http://discovery-server-3.ntt.com
+    preferIpAddress: true
+    leaseExpirationDurationInSeconds: 60
+    leaseRenewalIntervalInSeconds: 30
+
+  datacenter: Bootcamp
+  environment: Development
