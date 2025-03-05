@@ -1,0 +1,81 @@
+services:
+  mongo-service:
+    image: mongo:latest
+    container_name: docker-bt-mongo-service
+    restart: always
+    ports:
+      - 27017:27017
+    networks:
+      - bootcamp
+    volumes:
+      - bootcamp-mongodb-storage:/data/db
+
+  discovery-server:
+    build: .
+    container_name: bt-discovery-server
+    healthcheck:
+      test: [ "CMD", "curl","http://localhost:8761" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    ports:
+      - 8761:8761
+    networks:
+      - bootcamp
+
+  config-server:
+    build: ../BootcampConfigServer/
+    container_name: bt-config-server
+    ports:
+      - 9001:9001
+    healthcheck:
+      test: [ "CMD", "curl","http://localhost:9001/bt-ms-accounts/dev" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    environment:
+      CUSTOM.SERVER.PORT: 9001
+      EUREKA.SERVER.HOSTNAME: http://discovery-server:8761/eureka
+      SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME: "AldoSBou"
+      SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD: "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"
+    networks:
+      - bootcamp
+
+  cloud-gateway:
+    build: ../BootcampGateway/
+    container_name: bt-gateway
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    ports:
+      - 8099:8099
+    environment:
+      EUREKA.SERVER.HOSTNAME: http://discovery-server:8761/eureka
+    networks:
+      - bootcamp
+
+  bt-ms-accounts:
+    build: ../BootcampMsAccounts/
+    container_name: bt-ms-accounts
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    environment:
+      EUREKA.SERVER.HOSTNAME: http://discovery-server:8761/eureka
+      CONFIG.SERVER.HOSTNAME: http://config-server:9001
+      MONGODB.URL.CONNECTION: mongodb://bootcamp:bootcamp@mongo-service:27017/bootcampbdaccounts?authSource=admin
+    networks:
+      - bootcamp
+
+networks:
+  bootcamp:
+
+volumes:
+  bootcamp-mongodb-storage:
