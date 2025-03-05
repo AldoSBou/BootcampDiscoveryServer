@@ -39,8 +39,6 @@ services:
     environment:
       CUSTOM.SERVER.PORT: 9001
       EUREKA.SERVER.HOSTNAME: http://discovery-server:8761/eureka
-      SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME: "AldoSBou"
-      SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD: "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"
     networks:
       - bootcamp
 
